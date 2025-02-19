@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Tabela Nutricional - Formato ANVISA</title>
+  <!-- Link do Bootstrap (CDN) para layout moderno -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Fonte padrão: Arial ou Helvetica */
+    body, table, input, button {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    /* Card para a tabela e form */
+    .card-custom {
+      background-color: #fff;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Container da tabela para simular o "quadro" vertical */
+    .tabela-nutricional-container {
+      border: 2px solid #000;
+      padding: 10px;
+      margin-top: 10px;
+      position: relative;
+      /* Fonte 10pt (padrão ANVISA) - ajuste se quiser 8pt (reduzido) */
+      font-size: 10pt;
+    }
+
+    /* Título central da tabela (INFORMAÇÃO NUTRICIONAL) */
+    .titulo-tabela {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    /* Texto de porções no topo */
+    .porcoes-text {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    /* A tabela propriamente dita */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    table, th, td {
+      border: 1px solid #000;
+    }
+    th, td {
+      padding: 6px 8px;
+      text-align: center;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    /* Observação no rodapé da tabela */
+    .obs-tabela {
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    /* Botões de ação */
+    .btn-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    /* Impressão: ocultar o formulário e botões, mostrar só a tabela */
+    @media print {
+      body {
+        margin: 0;
+      }
+      .formulario, 
+      .btn-container,
+      h1 {
+        display: none !important;
+      }
+      @page {
+        size: A4 portrait; /* Força o formato retrato (vertical) */
+        margin: 20mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Criação de Tabela Nutricional</h1>
+
+  <div class="container">
+    <!-- Formulário moderno (Bootstrap) para preenchimento -->
+    <div class="card-custom formulario">
+      <h5 class="mb-3">Preencha as informações:</h5>
+      <div class="row g-3">
+        <!-- Porções por embalagem e porção -->
+        <div class="col-md-6">
+          <label for="porcoesEmb" class="form-label fw-bold">Porções por embalagem</label>
+          <input type="number" class="form-control" id="porcoesEmb" placeholder="Ex: 6" required>
+        </div>
+        <div class="col-md-6">
+          <label for="porcao" class="form-label fw-bold">Porção (ex.: 25 g (1 xícara))</label>
+          <input type="text" class="form-control" id="porcao" placeholder="Ex: 25 g (1 xícara)" required>
+        </div>
+
+        <!-- Valor energético -->
+        <div class="col-md-4">
+          <label for="valEner100g" class="form-label fw-bold">Valor energético (100 g)</label>
+          <input type="number" class="form-control" id="valEner100g" placeholder="kcal" required>
+        </div>
+        <div class="col-md-4">
+          <label for="valEnerPorcao" class="form-label fw-bold">Valor energético (Porção)</label>
+          <input type="number" class="form-control" id="valEnerPorcao" placeholder="kcal" required>
+        </div>
+        <div class="col-md-4">
+          <label for="valEnerVD" class="form-label fw-bold">%VD Valor energético</label>
+          <input type="number" class="form-control" id="valEnerVD" placeholder="Ex: 6" required>
+        </div>
+
+        <!-- Carboidratos -->
+        <div class="col-md-4">
+          <label for="carb100g" class="form-label fw-bold">Carboidratos (100 g)</label>
+          <input type="number" class="form-control" id="carb100g" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="carbPorcao" class="form-label fw-bold">Carboidratos (Porção)</label>
+          <input type="number" class="form-control" id="carbPorcao" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="carbVD" class="form-label fw-bold">%VD Carboidratos</label>
+          <input type="number" class="form-control" id="carbVD" placeholder="%" required>
+        </div>
+
+        <!-- Açúcares totais -->
+        <div class="col-md-4">
+          <label for="acucarTot100g" class="form-label fw-bold">Açúcares totais (100 g)</label>
+          <input type="number" class="form-control" id="acucarTot100g" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="acucarTotPorcao" class="form-label fw-bold">Açúcares totais (Porção)</label>
+          <input type="number" class="form-control" id="acucarTotPorcao" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="acucarTotVD" class="form-label fw-bold">%VD Açúcares totais</label>
+          <input type="number" class="form-control" id="acucarTotVD" placeholder="%" required>
+        </div>
+
+        <!-- Açúcares adicionados -->
+        <div class="col-md-4">
+          <label for="acucarAdic100g" class="form-label fw-bold">Açúcares adicionados (100 g)</label>
+          <input type="number" class="form-control" id="acucarAdic100g" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="acucarAdicPorcao" class="form-label fw-bold">Açúcares adicionados (Porção)</label>
+          <input type="number" class="form-control" id="acucarAdicPorcao" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="acucarAdicVD" class="form-label fw-bold">%VD Açúcares adicionados</label>
+          <input type="number" class="form-control" id="acucarAdicVD" placeholder="%" required>
+        </div>
+
+        <!-- Proteínas -->
+        <div class="col-md-4">
+          <label for="prot100g" class="form-label fw-bold">Proteínas (100 g)</label>
+          <input type="number" class="form-control" id="prot100g" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="protPorcao" class="form-label fw-bold">Proteínas (Porção)</label>
+          <input type="number" class="form-control" id="protPorcao" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="protVD" class="form-label fw-bold">%VD Proteínas</label>
+          <input type="number" class="form-control" id="protVD" placeholder="%" required>
+        </div>
+
+        <!-- Gorduras totais -->
+        <div class="col-md-4">
+          <label for="gordTot100g" class="form-label fw-bold">Gorduras totais (100 g)</label>
+          <input type="number" class="form-control" id="gordTot100g" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="gordTotPorcao" class="form-label fw-bold">Gorduras totais (Porção)</label>
+          <input type="number" class="form-control" id="gordTotPorcao" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="gordTotVD" class="form-label fw-bold">%VD Gorduras totais</label>
+          <input type="number" class="form-control" id="gordTotVD" placeholder="%" required>
+        </div>
+
+        <!-- Gorduras saturadas -->
+        <div class="col-md-4">
+          <label for="gordSat100g" class="form-label fw-bold">Gorduras saturadas (100 g)</label>
+          <input type="number" class="form-control" id="gordSat100g" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="gordSatPorcao" class="form-label fw-bold">Gorduras saturadas (Porção)</label>
+          <input type="number" class="form-control" id="gordSatPorcao" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="gordSatVD" class="form-label fw-bold">%VD Gorduras saturadas</label>
+          <input type="number" class="form-control" id="gordSatVD" placeholder="%" required>
+        </div>
+
+        <!-- Gorduras trans -->
+        <div class="col-md-4">
+          <label for="gordTrans100g" class="form-label fw-bold">Gorduras trans (100 g)</label>
+          <input type="number" class="form-control" id="gordTrans100g" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="gordTransPorcao" class="form-label fw-bold">Gorduras trans (Porção)</label>
+          <input type="number" class="form-control" id="gordTransPorcao" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="gordTransVD" class="form-label fw-bold">%VD Gorduras trans</label>
+          <input type="text" class="form-control" id="gordTransVD" value="--" required>
+        </div>
+
+        <!-- Fibra alimentar -->
+        <div class="col-md-4">
+          <label for="fibra100g" class="form-label fw-bold">Fibra alimentar (100 g)</label>
+          <input type="number" class="form-control" id="fibra100g" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="fibraPorcao" class="form-label fw-bold">Fibra alimentar (Porção)</label>
+          <input type="number" class="form-control" id="fibraPorcao" placeholder="g" required>
+        </div>
+        <div class="col-md-4">
+          <label for="fibraVD" class="form-label fw-bold">%VD Fibra alimentar</label>
+          <input type="number" class="form-control" id="fibraVD" placeholder="%" required>
+        </div>
+
+        <!-- Sódio -->
+        <div class="col-md-4">
+          <label for="sodio100g" class="form-label fw-bold">Sódio (100 g)</label>
+          <input type="number" class="form-control" id="sodio100g" placeholder="mg" required>
+        </div>
+        <div class="col-md-4">
+          <label for="sodioPorcao" class="form-label fw-bold">Sódio (Porção)</label>
+          <input type="number" class="form-control" id="sodioPorcao" placeholder="mg" required>
+        </div>
+        <div class="col-md-4">
+          <label for="sodioVD" class="form-label fw-bold">%VD Sódio</label>
+          <input type="number" class="form-control" id="sodioVD" placeholder="%" required>
+        </div>
+      </div>
+
+      <!-- Botões de ação do formulário -->
+      <div class="d-flex justify-content-end mt-3">
+        <button type="button" class="btn btn-success me-2" onclick="atualizarTabela()">Atualizar Tabela</button>
+      </div>
+    </div>
+
+    <!-- Card com a tabela no formato retrato da imagem -->
+    <div class="card-custom">
+      <div class="tabela-nutricional-container" id="tabelaContainer">
+        <div class="titulo-tabela">INFORMAÇÃO NUTRICIONAL</div>
+        <div class="porcoes-text">
+          <div>Porções por embalagem: <span id="porcoesSpan">--</span></div>
+          <div>Porção: <span id="porcaoSpan">--</span></div>
+        </div>
+
+        <table id="tabelaNutricional">
+          <thead>
+            <tr>
+              <th>Componente</th>
+              <th>100 g</th>
+              <th id="colPorcao">Porção</th>
+              <th>%VD*</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Valor energético (kcal)</td>
+              <td id="valEner100gCell">--</td>
+              <td id="valEnerPorcaoCell">--</td>
+              <td id="valEnerVDCell">--</td>
+            </tr>
+            <tr>
+              <td>Carboidratos (g)</td>
+              <td id="carb100gCell">--</td>
+              <td id="carbPorcaoCell">--</td>
+              <td id="carbVdCell">--</td>
+            </tr>
+            <tr>
+              <td>Açúcares totais (g)</td>
+              <td id="acucarTot100gCell">--</td>
+              <td id="acucarTotPorcaoCell">--</td>
+              <td id="acucarTotVdCell">--</td>
+            </tr>
+            <tr>
+              <td>Açúcares adicionados (g)</td>
+              <td id="acucarAdic100gCell">--</td>
+              <td id="acucarAdicPorcaoCell">--</td>
+              <td id="acucarAdicVdCell">--</td>
+            </tr>
+            <tr>
+              <td>Proteínas (g)</td>
+              <td id="prot100gCell">--</td>
+              <td id="protPorcaoCell">--</td>
+              <td id="protVdCell">--</td>
+            </tr>
+            <tr>
+              <td>Gorduras totais (g)</td>
+              <td id="gordTot100gCell">--</td>
+              <td id="gordTotPorcaoCell">--</td>
+              <td id="gordTotVdCell">--</td>
+            </tr>
+            <tr>
+              <td>Gorduras saturadas (g)</td>
+              <td id="gordSat100gCell">--</td>
+              <td id="gordSatPorcaoCell">--</td>
+              <td id="gordSatVdCell">--</td>
+            </tr>
+            <tr>
+              <td>Gorduras trans (g)</td>
+              <td id="gordTrans100gCell">--</td>
+              <td id="gordTransPorcaoCell">--</td>
+              <td id="gordTransVdCell">--</td>
+            </tr>
+            <tr>
+              <td>Fibra alimentar (g)</td>
+              <td id="fibra100gCell">--</td>
+              <td id="fibraPorcaoCell">--</td>
+              <td id="fibraVdCell">--</td>
+            </tr>
+            <tr>
+              <td>Sódio (mg)</td>
+              <td id="sodio100gCell">--</td>
+              <td id="sodioPorcaoCell">--</td>
+              <td id="sodioVdCell">--</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="obs-tabela">
+          *%VD - Percentual de valores diários fornecidos pela porção.
+        </div>
+      </div>
+      <!-- Botões Salvar/Imprimir -->
+      <div class="btn-container">
+        <button class="btn btn-primary" onclick="salvarTabela()">Salvar Tabela</button>
+        <button class="btn btn-warning" onclick="imprimirTabela()">Imprimir</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* Atualiza a tabela com base nos valores do formulário */
+    function atualizarTabela() {
+      const porcoesEmb = document.getElementById('porcoesEmb').value || '--';
+      const porcao = document.getElementById('porcao').value || '--';
+
+      const valEner100g = document.getElementById('valEner100g').value || '--';
+      const valEnerPorcao = document.getElementById('valEnerPorcao').value || '--';
+      const valEnerVD = document.getElementById('valEnerVD').value || '--';
+
+      const carb100g = document.getElementById('carb100g').value || '--';
+      const carbPorcao = document.getElementById('carbPorcao').value || '--';
+      const carbVD = document.getElementById('carbVD').value || '--';
+
+      const acucarTot100g = document.getElementById('acucarTot100g').value || '--';
+      const acucarTotPorcao = document.getElementById('acucarTotPorcao').value || '--';
+      const acucarTotVD = document.getElementById('acucarTotVD').value || '--';
+
+      const acucarAdic100g = document.getElementById('acucarAdic100g').value || '--';
+      const acucarAdicPorcao = document.getElementById('acucarAdicPorcao').value || '--';
+      const acucarAdicVD = document.getElementById('acucarAdicVD').value || '--';
+
+      const prot100g = document.getElementById('prot100g').value || '--';
+      const protPorcao = document.getElementById('protPorcao').value || '--';
+      const protVD = document.getElementById('protVD').value || '--';
+
+      const gordTot100g = document.getElementById('gordTot100g').value || '--';
+      const gordTotPorcao = document.getElementById('gordTotPorcao').value || '--';
+      const gordTotVD = document.getElementById('gordTotVD').value || '--';
+
+      const gordSat100g = document.getElementById('gordSat100g').value || '--';
+      const gordSatPorcao = document.getElementById('gordSatPorcao').value || '--';
+      const gordSatVD = document.getElementById('gordSatVD').value || '--';
+
+      const gordTrans100g = document.getElementById('gordTrans100g').value || '--';
+      const gordTransPorcao = document.getElementById('gordTransPorcao').value || '--';
+      const gordTransVD = document.getElementById('gordTransVD').value || '--';
+
+      const fibra100g = document.getElementById('fibra100g').value || '--';
+      const fibraPorcao = document.getElementById('fibraPorcao').value || '--';
+      const fibraVD = document.getElementById('fibraVD').value || '--';
+
+      const sodio100g = document.getElementById('sodio100g').value || '--';
+      const sodioPorcao = document.getElementById('sodioPorcao').value || '--';
+      const sodioVD = document.getElementById('sodioVD').value || '--';
+
+      // Preenche o cabeçalho
+      document.getElementById('porcoesSpan').textContent = porcoesEmb;
+      document.getElementById('porcaoSpan').textContent = porcao;
+      document.getElementById('colPorcao').textContent = porcao;
+
+      // Preenche a tabela
+      document.getElementById('valEner100gCell').textContent = valEner100g;
+      document.getElementById('valEnerPorcaoCell').textContent = valEnerPorcao;
+      document.getElementById('valEnerVDCell').textContent = valEnerVD;
+
+      document.getElementById('carb100gCell').textContent = carb100g;
+      document.getElementById('carbPorcaoCell').textContent = carbPorcao;
+      document.getElementById('carbVdCell').textContent = carbVD;
+
+      document.getElementById('acucarTot100gCell').textContent = acucarTot100g;
+      document.getElementById('acucarTotPorcaoCell').textContent = acucarTotPorcao;
+      document.getElementById('acucarTotVdCell').textContent = acucarTotVD;
+
+      document.getElementById('acucarAdic100gCell').textContent = acucarAdic100g;
+      document.getElementById('acucarAdicPorcaoCell').textContent = acucarAdicPorcao;
+      document.getElementById('acucarAdicVdCell').textContent = acucarAdicVD;
+
+      document.getElementById('prot100gCell').textContent = prot100g;
+      document.getElementById('protPorcaoCell').textContent = protPorcao;
+      document.getElementById('protVdCell').textContent = protVD;
+
+      document.getElementById('gordTot100gCell').textContent = gordTot100g;
+      document.getElementById('gordTotPorcaoCell').textContent = gordTotPorcao;
+      document.getElementById('gordTotVdCell').textContent = gordTotVD;
+
+      document.getElementById('gordSat100gCell').textContent = gordSat100g;
+      document.getElementById('gordSatPorcaoCell').textContent = gordSatPorcao;
+      document.getElementById('gordSatVdCell').textContent = gordSatVD;
+
+      document.getElementById('gordTrans100gCell').textContent = gordTrans100g;
+      document.getElementById('gordTransPorcaoCell').textContent = gordTransPorcao;
+      document.getElementById('gordTransVdCell').textContent = gordTransVD;
+
+      document.getElementById('fibra100gCell').textContent = fibra100g;
+      document.getElementById('fibraPorcaoCell').textContent = fibraPorcao;
+      document.getElementById('fibraVdCell').textContent = fibraVD;
+
+      document.getElementById('sodio100gCell').textContent = sodio100g;
+      document.getElementById('sodioPorcaoCell').textContent = sodioPorcao;
+      document.getElementById('sodioVdCell').textContent = sodioVD;
+    }
+
+    /* Salvar a tabela (com dados) em um arquivo HTML */
+    function salvarTabela() {
+      // 1. Atualiza a tabela (caso o usuário esqueça de clicar antes)
+      atualizarTabela();
+
+      // 2. Captura o HTML do container
+      const tabelaHTML = document.getElementById('tabelaContainer').outerHTML;
+
+      // 3. Monta um HTML básico para incorporar esse container
+      const cabecalho = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Tabela Nutricional Salva</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 20px;
+    }
+    .tabela-nutricional-container {
+      border: 2px solid #000;
+      padding: 10px;
+      font-size: 10pt;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    table, th, td {
+      border: 1px solid #000;
+    }
+    th, td {
+      padding: 6px 8px;
+      text-align: center;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    .titulo-tabela {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    .porcoes-text {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .obs-tabela {
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+`;
+      const rodape = `
+</body>
+</html>`;
+
+      const conteudoCompleto = cabecalho + tabelaHTML + rodape;
+
+      // 4. Cria um blob e um link para download
+      const blob = new Blob([conteudoCompleto], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = "tabela_nutricional.html"; // nome do arquivo
+      link.click();
+
+      // 5. Limpa o objeto URL após o download
+      URL.revokeObjectURL(url);
+    }
+
+    /* Imprimir apenas a tabela (sem formulário) */
+    function imprimirTabela() {
+      // Para garantir que a tabela está atualizada
+      atualizarTabela();
+      // Executa o comando de impressão do navegador
+      window.print();
+    }
+  </script>
+
+  <!-- Bootstrap JS (opcional, se quiser interações extras) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
